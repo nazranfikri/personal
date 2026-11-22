@@ -4,163 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>nspace.my</title>
-  <style>
-    :root {
-      --bg: #0b0d10;
-      --panel: #13171d;
-      --panel-2: #191e26;
-      --text: #eef2f6;
-      --muted: #8b95a5;
-      --border: #252c37;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --ok: #22c55e;
-      --err: #ef4444;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-      padding: 24px 16px 64px;
-    }
-
-    .container {
-      max-width: 860px;
-      margin: 0 auto;
-    }
-
-    header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .brand h1 { font-size: 1.35rem; font-weight: 700; }
-    .status { font-size: 0.85rem; color: var(--muted); }
-    .status.ok { color: var(--ok); }
-    .status.err { color: var(--err); }
-
-    .top-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    input, select, textarea, button {
-      font-family: inherit;
-      font-size: 0.92rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: var(--text);
-      padding: 9px 12px;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    button {
-      cursor: pointer;
-      background: var(--accent);
-      border-color: var(--accent);
-      font-weight: 600;
-      transition: background 0.15s ease;
-    }
-
-    button:hover { background: var(--accent-hover); }
-    button.secondary {
-      background: var(--panel-2);
-      border-color: var(--border);
-      font-weight: 500;
-    }
-    button.secondary:hover { background: #222934; }
-    button.danger {
-      background: transparent;
-      border-color: rgba(239, 68, 68, 0.35);
-      color: #fca5a5;
-      padding: 5px 9px;
-      font-size: 0.8rem;
-    }
-    button.danger:hover { background: rgba(239, 68, 68, 0.15); }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 18px;
-    }
-
-    .tab-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 18px;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 76px;
-      resize: vertical;
-      margin-bottom: 10px;
-    }
-
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .item {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .item-title { font-weight: 600; }
-    .item-meta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-    .item-content { font-size: 0.92rem; margin-top: 6px; white-space: pre-wrap; }
-    .done { text-decoration: line-through; color: var(--muted); }
-
-    .row-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .amount { font-weight: 700; white-space: nowrap; }
-    .hidden { display: none; }
-    .empty { color: var(--muted); font-size: 0.9rem; padding: 12px 0; }
-  </style>
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <div class="container">
@@ -170,19 +14,18 @@
         <div id="status" class="status">Connecting...</div>
       </div>
       <div class="top-actions">
-        <input id="pinInput" type="password" placeholder="Enter PIN" style="width: 120px;" />
-        <button class="secondary" onclick="refreshAll()">Refresh</button>
+        <button id="refreshBtn" class="secondary" type="button">Refresh</button>
       </div>
     </header>
 
     <div class="tabs">
-      <button id="tabJournal" class="tab-btn active" onclick="switchTab('journal')">Journal</button>
-      <button id="tabExpenses" class="tab-btn secondary" onclick="switchTab('expenses')">Expenses</button>
+      <button id="tabJournal" class="tab-btn active" type="button" data-tab="journal">Journal</button>
+      <button id="tabExpenses" class="tab-btn secondary" type="button" data-tab="expenses">Expenses</button>
     </div>
 
     <!-- JOURNAL SECTION -->
     <section id="sectionJournal">
-      <form class="card" onsubmit="addJournal(event)">
+      <form id="journalForm" class="card">
         <div class="grid-2">
           <input id="jDate" type="date" required />
           <input id="jTime" type="text" placeholder="Time (e.g. Morning / 21:30)" value="All Day" />
@@ -193,7 +36,7 @@
           </select>
           <input id="jCategory" type="text" placeholder="Category" value="Personal" />
         </div>
-        <div class="grid-2" style="grid-template-columns: 1fr;">
+        <div class="grid-2 grid-1">
           <input id="jTitle" type="text" placeholder="Title" required />
         </div>
         <textarea id="jContent" placeholder="Write details..."></textarea>
@@ -205,7 +48,7 @@
 
     <!-- EXPENSES SECTION -->
     <section id="sectionExpenses" class="hidden">
-      <form class="card" onsubmit="addExpense(event)">
+      <form id="expenseForm" class="card">
         <div class="grid-2">
           <input id="eDate" type="date" required />
           <input id="eAmount" type="number" step="0.01" min="0" placeholder="Amount (e.g. 15.50)" required />
@@ -219,185 +62,6 @@
     </section>
   </div>
 
-  <script>
-    const API_URL = "https://api.nspace.my";
-    let state = { journal: [], expenses: [] };
-
-    function getPin() {
-      const val = document.getElementById("pinInput").value.trim();
-      if (!val) {
-        alert("Masukkan PIN dahulu sebelum simpan atau padam rekod.");
-        document.getElementById("pinInput").focus();
-        return null;
-      }
-      return val;
-    }
-
-    function setStatus(text, type = "") {
-      const el = document.getElementById("status");
-      el.textContent = text;
-      el.className = "status " + type;
-    }
-
-    function todayISO() {
-      return new Date().toISOString().slice(0, 10);
-    }
-
-    function switchTab(tab) {
-      const isJournal = tab === "journal";
-      document.getElementById("sectionJournal").classList.toggle("hidden", !isJournal);
-      document.getElementById("sectionExpenses").classList.toggle("hidden", isJournal);
-
-      document.getElementById("tabJournal").className = "tab-btn " + (isJournal ? "active" : "secondary");
-      document.getElementById("tabExpenses").className = "tab-btn " + (!isJournal ? "active" : "secondary");
-    }
-
-    async function refreshAll() {
-      setStatus("Syncing with Cloudflare D1...");
-      try {
-        const res = await fetch(API_URL, { method: "GET" });
-        const data = await res.json();
-        if (!res.ok || data.status !== "ok") {
-          throw new Error(data.message || "Failed to load data");
-        }
-        state.journal = Array.isArray(data.journal) ? data.journal : [];
-        state.expenses = Array.isArray(data.expenses) ? data.expenses : [];
-        renderJournal();
-        renderExpenses();
-        setStatus("Synced with Cloudflare D1", "ok");
-      } catch (err) {
-        setStatus("Sync error: " + err.message, "err");
-      }
-    }
-
-    async function postAction(payload) {
-      const pin = getPin();
-      if (!pin) return false;
-
-      setStatus("Saving...");
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...payload, pin })
-        });
-        const data = await res.json();
-        if (!res.ok || data.status !== "ok") {
-          throw new Error(data.message || "Request failed");
-        }
-        await refreshAll();
-        return true;
-      } catch (err) {
-        setStatus("Error: " + err.message, "err");
-        alert(err.message);
-        return false;
-      }
-    }
-
-    async function addJournal(e) {
-      e.preventDefault();
-      await postAction({
-        action: "add",
-        target: "journal",
-        date: document.getElementById("jDate").value,
-        time: document.getElementById("jTime").value.trim() || "All Day",
-        type: document.getElementById("jType").value,
-        category: document.getElementById("jCategory").value.trim() || "Personal",
-        title: document.getElementById("jTitle").value.trim(),
-        content: document.getElementById("jContent").value.trim(),
-        done: false
-      });
-      document.getElementById("jTitle").value = "";
-      document.getElementById("jContent").value = "";
-    }
-
-    async function toggleJournalDone(id, currentDone) {
-      await postAction({
-        action: "toggle_done",
-        target: "journal",
-        id,
-        done: !currentDone
-      });
-    }
-
-    async function deleteJournal(id) {
-      if (!confirm("Padam entri journal ini?")) return;
-      await postAction({ action: "delete", target: "journal", id });
-    }
-
-    async function addExpense(e) {
-      e.preventDefault();
-      await postAction({
-        action: "add",
-        target: "expense",
-        date: document.getElementById("eDate").value,
-        amount: parseFloat(document.getElementById("eAmount").value) || 0,
-        category: document.getElementById("eCategory").value.trim() || "Food",
-        note: document.getElementById("eNote").value.trim()
-      });
-      document.getElementById("eAmount").value = "";
-      document.getElementById("eNote").value = "";
-    }
-
-    async function deleteExpense(id) {
-      if (!confirm("Padam rekod perbelanjaan ini?")) return;
-      await postAction({ action: "delete", target: "expense", id });
-    }
-
-    function escapeHtml(str) {
-      return String(str || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    function renderJournal() {
-      const container = document.getElementById("journalList");
-      if (!state.journal.length) {
-        container.innerHTML = '<div class="empty">Tiada rekod journal lagi.</div>';
-        return;
-      }
-
-      container.innerHTML = state.journal.map(item => `
-        <div class="item">
-          <div>
-            <div class="item-title ${item.done ? "done" : ""}">${escapeHtml(item.title)}</div>
-            <div class="item-meta">${escapeHtml(item.date)} · ${escapeHtml(item.time)} · ${escapeHtml(item.type)} · ${escapeHtml(item.category)}</div>
-            ${item.content ? `<div class="item-content ${item.done ? "done" : ""}">${escapeHtml(item.content)}</div>` : ""}
-          </div>
-          <div class="row-right">
-            <input type="checkbox" ${item.done ? "checked" : ""} onchange="toggleJournalDone('${escapeHtml(item.id)}', ${Boolean(item.done)})" title="Mark done" />
-            <button class="danger" onclick="deleteJournal('${escapeHtml(item.id)}')">Delete</button>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function renderExpenses() {
-      const container = document.getElementById("expenseList");
-      if (!state.expenses.length) {
-        container.innerHTML = '<div class="empty">Tiada rekod perbelanjaan lagi.</div>';
-        return;
-      }
-
-      container.innerHTML = state.expenses.map(item => `
-        <div class="item">
-          <div>
-            <div class="item-title">${escapeHtml(item.category)}${item.note ? " — " + escapeHtml(item.note) : ""}</div>
-            <div class="item-meta">${escapeHtml(item.date)}</div>
-          </div>
-          <div class="row-right">
-            <span class="amount">RM ${Number(item.amount || 0).toFixed(2)}</span>
-            <button class="danger" onclick="deleteExpense('${escapeHtml(item.id)}')">Delete</button>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    document.getElementById("jDate").value = todayISO();
-    document.getElementById("eDate").value = todayISO();
-    refreshAll();
-  </script>
+  <script src="./app.js"></script>
 </body>
 </html>

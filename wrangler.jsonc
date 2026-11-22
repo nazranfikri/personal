@@ -1,0 +1,12 @@
+{
+  "name": "nspace-api",
+  "main": "worker.js",
+  "compatibility_date": "2026-11-22",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "nspace-db",
+      "database_id": "9e6d0a1e-a535-43bb-8e19-5ad0711d53e1"
+    }
+  ]
+}

@@ -3,894 +3,401 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>nspace.my — Calendar, Spending &amp; Journal</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>nspace.my</title>
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    :root {
+      --bg: #0b0d10;
+      --panel: #13171d;
+      --panel-2: #191e26;
+      --text: #eef2f6;
+      --muted: #8b95a5;
+      --border: #252c37;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --ok: #22c55e;
+      --err: #ef4444;
     }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
-      background: #0B0C10;
-      color: #F8FAFC;
-      min-height: 100vh;
-      padding: 28px 20px 60px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px 16px 64px;
     }
 
-    .ns-topbar, .ns-status, .ns-grid {
-      max-width: 1180px;
-      margin-left: auto;
-      margin-right: auto;
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
     }
 
-    .ns-topbar {
+    header {
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
       justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
-    .ns-brand {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #F8FAFC;
-    }
-
-    .ns-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .ns-status {
-      font-size: 12px;
-      color: #94A3B8;
-      margin-bottom: 16px;
-      min-height: 18px;
-    }
-
-    .ns-grid {
-      display: grid;
-      grid-template-columns: 420px 1fr;
-      gap: 20px;
-      align-items: start;
-    }
-
-    .ns-col-left {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .ns-card {
-      background: #13151E;
-      border: 1px solid #222536;
-      border-radius: 16px;
-      padding: 20px;
-    }
-
-    .ns-sec-head, .ns-cal-head {
-      display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .ns-card-title {
-      margin: 0;
-      font-size: 17px;
-      font-weight: 600;
-      color: #F8FAFC;
-    }
+    .brand h1 { font-size: 1.35rem; font-weight: 700; }
+    .status { font-size: 0.85rem; color: var(--muted); }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--err); }
 
-    .ns-sub-date {
-      font-size: 12.5px;
-      color: #94A3B8;
-      margin-top: 3px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .ns-total-rm {
-      font-size: 22px;
-      font-weight: 700;
-      color: #A5B4FC;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .ns-cal-nav {
+    .top-actions {
       display: flex;
-      gap: 6px;
+      gap: 8px;
+      align-items: center;
     }
 
-    .ns-icon-btn {
-      background: #191C28;
-      border: 1px solid #2A2E42;
-      color: #E2E8F0;
-      width: 32px;
-      height: 32px;
+    input, select, textarea, button {
+      font-family: inherit;
+      font-size: 0.92rem;
       border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 9px 12px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    button {
       cursor: pointer;
-      font-size: 16px;
-      line-height: 1;
-    }
-
-    .ns-icon-btn:hover {
-      background: #23273A;
-    }
-
-    .ns-weekdays {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      text-align: center;
-      font-size: 12px;
+      background: var(--accent);
+      border-color: var(--accent);
       font-weight: 600;
-      color: #64748B;
-      margin-bottom: 8px;
+      transition: background 0.15s ease;
     }
 
-    .ns-days {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
+    button:hover { background: var(--accent-hover); }
+    button.secondary {
+      background: var(--panel-2);
+      border-color: var(--border);
+      font-weight: 500;
     }
-
-    .ns-day {
-      position: relative;
-      height: 40px;
-      border: none;
+    button.secondary:hover { background: #222934; }
+    button.danger {
       background: transparent;
-      color: #E2E8F0;
-      font-size: 13.5px;
-      font-variant-numeric: tabular-nums;
-      border-radius: 50%;
-      cursor: pointer;
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      padding: 5px 9px;
+      font-size: 0.8rem;
+    }
+    button.danger:hover { background: rgba(239, 68, 68, 0.15); }
+
+    .tabs {
       display: flex;
-      align-items: center;
-      justify-content: center;
+      gap: 8px;
+      margin-bottom: 18px;
     }
 
-    .ns-day:hover {
-      background: #1B1F2E;
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
     }
 
-    .ns-day.muted {
-      color: #475569;
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
     }
 
-    .ns-day.today-ring {
-      outline: 1px solid #6366F1;
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .ns-day.selected {
-      background: #4F46E5;
-      color: #FFFFFF;
-      font-weight: 600;
+    textarea {
+      width: 100%;
+      min-height: 76px;
+      resize: vertical;
+      margin-bottom: 10px;
     }
 
-    .ns-day.has-dot::after {
-      content: "";
-      position: absolute;
-      bottom: 5px;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #818CF8;
-    }
-
-    .ns-day.selected.has-dot::after {
-      background: #E0E7FF;
-    }
-
-    .ns-exp-form, .ns-quick-bar, .ns-modal-body {
+    .list {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-bottom: 14px;
     }
 
-    .ns-quick-bar {
-      flex-direction: row;
-      align-items: center;
-    }
-
-    .ns-exp-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .ns-exp-row:has(button) {
-      grid-template-columns: 1fr auto;
-    }
-
-    .ns-input {
-      width: 100%;
-      background: #0E1017;
-      border: 1px solid #262A3D;
+    .item {
+      background: var(--panel);
+      border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 9px 12px;
-      color: #F8FAFC;
-      font-size: 13px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
     }
 
-    .ns-input:focus {
-      outline: none;
-      border-color: #6366F1;
-    }
+    .item-title { font-weight: 600; }
+    .item-meta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .item-content { font-size: 0.92rem; margin-top: 6px; white-space: pre-wrap; }
+    .done { text-decoration: line-through; color: var(--muted); }
 
-    .ns-input-mini {
-      width: 95px;
+    .row-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       flex-shrink: 0;
     }
 
-    .ns-textarea {
-      resize: vertical;
-    }
-
-    .ns-label {
-      display: block;
-      font-size: 11.5px;
-      color: #94A3B8;
-      margin-bottom: 5px;
-    }
-
-    .ns-btn {
-      border: none;
-      border-radius: 10px;
-      padding: 9px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .ns-btn-primary {
-      background: #4F46E5;
-      color: #FFFFFF;
-    }
-
-    .ns-btn-primary:hover {
-      background: #4338CA;
-    }
-
-    .ns-btn-ghost {
-      background: #181B26;
-      border: 1px solid #282C40;
-      color: #CBD5E1;
-    }
-
-    .ns-btn-ghost:hover {
-      background: #202434;
-    }
-
-    .ns-list, .ns-jrn-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .ns-exp-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      background: #171A25;
-      border: 1px solid #23273A;
-      border-radius: 12px;
-      padding: 10px 12px;
-    }
-
-    .ns-exp-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .ns-exp-note {
-      font-size: 13px;
-      color: #E2E8F0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .ns-exp-amt {
-      font-size: 13.5px;
-      font-weight: 600;
-      color: #F8FAFC;
-      font-variant-numeric: tabular-nums;
-      white-space: nowrap;
-    }
-
-    .ns-pill {
-      display: inline-block;
-      background: #1E1B4B;
-      color: #A5B4FC;
-      font-size: 11px;
-      font-weight: 500;
-      padding: 3px 8px;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-
-    .ns-jrn-card {
-      background: #171A25;
-      border: 1px solid #23273A;
-      border-radius: 12px;
-      padding: 14px;
-    }
-
-    .ns-jrn-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 6px;
-      font-size: 12px;
-      color: #94A3B8;
-    }
-
-    .ns-jrn-title-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-
-    .ns-jrn-title {
-      margin: 0;
-      font-size: 15px;
-      font-weight: 600;
-      color: #F8FAFC;
-    }
-
-    .ns-jrn-title.done {
-      text-decoration: line-through;
-      color: #64748B;
-    }
-
-    .ns-jrn-body {
-      margin: 0;
-      font-size: 13px;
-      line-height: 1.5;
-      color: #94A3B8;
-      white-space: pre-line;
-    }
-
-    .ns-empty {
-      text-align: center;
-      padding: 24px 12px;
-      color: #64748B;
-      font-size: 13px;
-    }
-
-    .ns-modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(5, 6, 10, 0.75);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 9999;
-    }
-
-    .ns-modal-backdrop[hidden] {
-      display: none;
-    }
-
-    .ns-modal {
-      width: 100%;
-      max-width: 480px;
-      background: #13151E;
-      border: 1px solid #262A3F;
-      border-radius: 16px;
-      padding: 20px;
-    }
-
-    .ns-modal-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
-    .ns-modal-head h3 {
-      margin: 0;
-      font-size: 16px;
-    }
-
-    .ns-modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 6px;
-    }
-
-    @media (max-width: 900px) {
-      .ns-grid {
-        grid-template-columns: 1fr;
-      }
-      .ns-exp-row {
-        grid-template-columns: 1fr;
-      }
-    }
+    .amount { font-weight: 700; white-space: nowrap; }
+    .hidden { display: none; }
+    .empty { color: var(--muted); font-size: 0.9rem; padding: 12px 0; }
   </style>
 </head>
 <body>
-  <div id="nspace-app">
-    <header class="ns-topbar">
-      <div class="ns-brand">nspace.my</div>
-      <div class="ns-actions">
-        <button type="button" id="ns-today-btn" class="ns-btn ns-btn-ghost">Today</button>
-        <button type="button" id="ns-new-btn" class="ns-btn ns-btn-primary">+ New</button>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <h1>nspace.my</h1>
+        <div id="status" class="status">Connecting...</div>
+      </div>
+      <div class="top-actions">
+        <input id="pinInput" type="password" placeholder="Enter PIN" style="width: 120px;" />
+        <button class="secondary" onclick="refreshAll()">Refresh</button>
       </div>
     </header>
 
-    <div id="ns-status" class="ns-status">Syncing with Google Sheets...</div>
-
-    <main class="ns-grid">
-      <div class="ns-col-left">
-        <section class="ns-card">
-          <div class="ns-cal-head">
-            <h2 id="ns-month-label" class="ns-card-title">November 2026</h2>
-            <div class="ns-cal-nav">
-              <button type="button" id="ns-prev-month" class="ns-icon-btn" aria-label="Previous Month">&lsaquo;</button>
-              <button type="button" id="ns-next-month" class="ns-icon-btn" aria-label="Next Month">&rsaquo;</button>
-            </div>
-          </div>
-
-          <div class="ns-weekdays">
-            <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
-          </div>
-          <div id="ns-cal-days" class="ns-days"></div>
-        </section>
-
-        <section class="ns-card">
-          <div class="ns-sec-head">
-            <div>
-              <h2 class="ns-card-title">Daily Spending</h2>
-              <div id="ns-exp-date" class="ns-sub-date">15/11/2026</div>
-            </div>
-            <div id="ns-exp-total" class="ns-total-rm">RM 0.00</div>
-          </div>
-
-          <form id="ns-exp-form" class="ns-exp-form">
-            <div class="ns-exp-row">
-              <input type="number" step="0.01" min="0" id="ns-exp-amount" class="ns-input ns-input-sm" placeholder="Amount (RM)" required />
-              <select id="ns-exp-cat" class="ns-input ns-input-sm">
-                <option value="Food & Coffee">Food &amp; Coffee</option>
-                <option value="Transport">Transport</option>
-                <option value="Groceries">Groceries</option>
-                <option value="Bills">Bills</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="ns-exp-row">
-              <input type="text" id="ns-exp-note" class="ns-input" placeholder="Note (e.g., Kopi O, Fuel, Lunch)" required />
-              <button type="submit" class="ns-btn ns-btn-primary">Add</button>
-            </div>
-          </form>
-
-          <div id="ns-exp-list" class="ns-list"></div>
-        </section>
-      </div>
-
-      <aside class="ns-col-right">
-        <section class="ns-card ns-full-height">
-          <div class="ns-sec-head">
-            <div>
-              <h2 class="ns-card-title">Diary / Journal / To-Do</h2>
-              <div id="ns-jrn-date" class="ns-sub-date">15/11/2026</div>
-            </div>
-            <span id="ns-jrn-count" class="ns-pill">0 items</span>
-          </div>
-
-          <form id="ns-quick-jrn-form" class="ns-quick-bar">
-            <select id="ns-quick-type" class="ns-input ns-input-mini">
-              <option value="Diary">Diary</option>
-              <option value="Todo">To-Do</option>
-            </select>
-            <input type="text" id="ns-quick-title" class="ns-input" placeholder="Add a quick note or task for this date..." required />
-            <button type="submit" class="ns-btn ns-btn-primary">+</button>
-          </form>
-
-          <div id="ns-jrn-list" class="ns-jrn-list"></div>
-        </section>
-      </aside>
-    </main>
-
-    <div id="ns-modal" class="ns-modal-backdrop" hidden>
-      <div class="ns-modal">
-        <div class="ns-modal-head">
-          <h3>New Entry</h3>
-          <button type="button" id="ns-close-modal" class="ns-icon-btn">&times;</button>
-        </div>
-        <form id="ns-modal-form" class="ns-modal-body">
-          <div class="ns-exp-row">
-            <div>
-              <label class="ns-label">Date (DD/MM/YYYY)</label>
-              <input type="text" id="ns-m-date" class="ns-input" placeholder="15/11/2026" required />
-            </div>
-            <div>
-              <label class="ns-label">Type</label>
-              <select id="ns-m-type" class="ns-input">
-                <option value="Diary">Diary</option>
-                <option value="Todo">Todo</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="ns-exp-row">
-            <div>
-              <label class="ns-label">Time</label>
-              <input type="text" id="ns-m-time" class="ns-input" value="All Day" placeholder="09:30 AM or All Day" />
-            </div>
-            <div>
-              <label class="ns-label">Category</label>
-              <select id="ns-m-cat" class="ns-input">
-                <option value="Life">Life</option>
-                <option value="Work">Work</option>
-                <option value="Personal">Personal</option>
-                <option value="Trip">Trip</option>
-                <option value="Note">Note</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="ns-label">Title</label>
-            <input type="text" id="ns-m-title" class="ns-input" placeholder="Short headline..." required />
-          </div>
-
-          <div>
-            <label class="ns-label">Diary / Notes</label>
-            <textarea id="ns-m-content" rows="4" class="ns-input ns-textarea" placeholder="Write your thoughts, reflection, or details..."></textarea>
-          </div>
-
-          <div class="ns-modal-actions">
-            <button type="button" id="ns-cancel-modal" class="ns-btn ns-btn-ghost">Cancel</button>
-            <button type="submit" class="ns-btn ns-btn-primary">Save Entry</button>
-          </div>
-        </form>
-      </div>
+    <div class="tabs">
+      <button id="tabJournal" class="tab-btn active" onclick="switchTab('journal')">Journal</button>
+      <button id="tabExpenses" class="tab-btn secondary" onclick="switchTab('expenses')">Expenses</button>
     </div>
+
+    <!-- JOURNAL SECTION -->
+    <section id="sectionJournal">
+      <form class="card" onsubmit="addJournal(event)">
+        <div class="grid-2">
+          <input id="jDate" type="date" required />
+          <input id="jTime" type="text" placeholder="Time (e.g. Morning / 21:30)" value="All Day" />
+          <select id="jType">
+            <option value="Diary">Diary</option>
+            <option value="Task">Task</option>
+            <option value="Note">Note</option>
+          </select>
+          <input id="jCategory" type="text" placeholder="Category" value="Personal" />
+        </div>
+        <div class="grid-2" style="grid-template-columns: 1fr;">
+          <input id="jTitle" type="text" placeholder="Title" required />
+        </div>
+        <textarea id="jContent" placeholder="Write details..."></textarea>
+        <button type="submit">Save Journal Entry</button>
+      </form>
+
+      <div id="journalList" class="list"></div>
+    </section>
+
+    <!-- EXPENSES SECTION -->
+    <section id="sectionExpenses" class="hidden">
+      <form class="card" onsubmit="addExpense(event)">
+        <div class="grid-2">
+          <input id="eDate" type="date" required />
+          <input id="eAmount" type="number" step="0.01" min="0" placeholder="Amount (e.g. 15.50)" required />
+          <input id="eCategory" type="text" placeholder="Category (e.g. Food, Fuel)" value="Food" />
+          <input id="eNote" type="text" placeholder="Note" />
+        </div>
+        <button type="submit">Save Expense</button>
+      </form>
+
+      <div id="expenseList" class="list"></div>
+    </section>
   </div>
 
   <script>
-    (function() {
-      const API_URL = "https://script.google.com/macros/s/AKfycbxzMilMCt3_wLCW19-FkNgLQZDsmI9133DmUHhxgFG6W10ecnl84y5qNUxkvdRoLz0u/exec";
-      const DEFAULT_PIN = "2611"; // Tukar ikut PIN dalam Apps Script kau
+    const API_URL = "https://api.nspace.my";
+    let state = { journal: [], expenses: [] };
 
-      const MONTHS = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-      ];
-
-      const pad2 = (n) => String(n).padStart(2, "0");
-      const toDDMMYYYY = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
-
-      function getTodayDDMMYYYY() {
-        return toDDMMYYYY(new Date());
+    function getPin() {
+      const val = document.getElementById("pinInput").value.trim();
+      if (!val) {
+        alert("Masukkan PIN dahulu sebelum simpan atau padam rekod.");
+        document.getElementById("pinInput").focus();
+        return null;
       }
+      return val;
+    }
 
-      let state = {
-        selectedDate: getTodayDDMMYYYY(),
-        viewYear: new Date().getFullYear(),
-        viewMonth: new Date().getMonth(),
-        journal: [],
-        expenses: []
-      };
+    function setStatus(text, type = "") {
+      const el = document.getElementById("status");
+      el.textContent = text;
+      el.className = "status " + type;
+    }
 
-      const elStatus = document.getElementById("ns-status");
-      const elMonthLabel = document.getElementById("ns-month-label");
-      const elCalDays = document.getElementById("ns-cal-days");
-      const elExpDate = document.getElementById("ns-exp-date");
-      const elExpTotal = document.getElementById("ns-exp-total");
-      const elExpList = document.getElementById("ns-exp-list");
-      const elJrnDate = document.getElementById("ns-jrn-date");
-      const elJrnCount = document.getElementById("ns-jrn-count");
-      const elJrnList = document.getElementById("ns-jrn-list");
-      const elModal = document.getElementById("ns-modal");
+    function todayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
 
-      function setStatus(msg, isError = false) {
-        elStatus.textContent = msg;
-        elStatus.style.color = isError ? "#F87171" : "#94A3B8";
-      }
+    function switchTab(tab) {
+      const isJournal = tab === "journal";
+      document.getElementById("sectionJournal").classList.toggle("hidden", !isJournal);
+      document.getElementById("sectionExpenses").classList.toggle("hidden", isJournal);
 
-      function askPin() {
-        if (DEFAULT_PIN && DEFAULT_PIN !== "PASTE_PIN") return DEFAULT_PIN;
-        return window.prompt("Enter PIN:") || "";
-      }
+      document.getElementById("tabJournal").className = "tab-btn " + (isJournal ? "active" : "secondary");
+      document.getElementById("tabExpenses").className = "tab-btn " + (!isJournal ? "active" : "secondary");
+    }
 
-      async function loadData() {
-        if (!API_URL || API_URL.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT")) {
-          setStatus("Set your Google Apps Script Web App URL in API_URL first.", true);
-          renderAll();
-          return;
+    async function refreshAll() {
+      setStatus("Syncing with Cloudflare D1...");
+      try {
+        const res = await fetch(API_URL, { method: "GET" });
+        const data = await res.json();
+        if (!res.ok || data.status !== "ok") {
+          throw new Error(data.message || "Failed to load data");
         }
-        try {
-          setStatus("Loading from Google Sheets...");
-          const res = await fetch(API_URL, { cache: "no-store" });
-          const data = await res.json();
-          if (data.status === "ok") {
-            state.journal = Array.isArray(data.journal) ? data.journal : [];
-            state.expenses = Array.isArray(data.expenses) ? data.expenses : [];
-            setStatus("Synced with Google Sheets (" + state.selectedDate + ")");
-          } else {
-            setStatus("Error: " + (data.message || "Failed to load"), true);
-          }
-        } catch (err) {
-          setStatus("Network error loading data.", true);
-        }
-        renderAll();
+        state.journal = Array.isArray(data.journal) ? data.journal : [];
+        state.expenses = Array.isArray(data.expenses) ? data.expenses : [];
+        renderJournal();
+        renderExpenses();
+        setStatus("Synced with Cloudflare D1", "ok");
+      } catch (err) {
+        setStatus("Sync error: " + err.message, "err");
       }
+    }
 
-      async function postPayload(payload) {
-        setStatus("Saving to Google Sheets...");
+    async function postAction(payload) {
+      const pin = getPin();
+      if (!pin) return false;
+
+      setStatus("Saving...");
+      try {
         const res = await fetch(API_URL, {
           method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(Object.assign({ pin: askPin() }, payload))
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...payload, pin })
         });
         const data = await res.json();
-        if (data.status !== "ok") {
-          throw new Error(data.message || "Save failed");
+        if (!res.ok || data.status !== "ok") {
+          throw new Error(data.message || "Request failed");
         }
-        await loadData();
+        await refreshAll();
+        return true;
+      } catch (err) {
+        setStatus("Error: " + err.message, "err");
+        alert(err.message);
+        return false;
+      }
+    }
+
+    async function addJournal(e) {
+      e.preventDefault();
+      await postAction({
+        action: "add",
+        target: "journal",
+        date: document.getElementById("jDate").value,
+        time: document.getElementById("jTime").value.trim() || "All Day",
+        type: document.getElementById("jType").value,
+        category: document.getElementById("jCategory").value.trim() || "Personal",
+        title: document.getElementById("jTitle").value.trim(),
+        content: document.getElementById("jContent").value.trim(),
+        done: false
+      });
+      document.getElementById("jTitle").value = "";
+      document.getElementById("jContent").value = "";
+    }
+
+    async function toggleJournalDone(id, currentDone) {
+      await postAction({
+        action: "toggle_done",
+        target: "journal",
+        id,
+        done: !currentDone
+      });
+    }
+
+    async function deleteJournal(id) {
+      if (!confirm("Padam entri journal ini?")) return;
+      await postAction({ action: "delete", target: "journal", id });
+    }
+
+    async function addExpense(e) {
+      e.preventDefault();
+      await postAction({
+        action: "add",
+        target: "expense",
+        date: document.getElementById("eDate").value,
+        amount: parseFloat(document.getElementById("eAmount").value) || 0,
+        category: document.getElementById("eCategory").value.trim() || "Food",
+        note: document.getElementById("eNote").value.trim()
+      });
+      document.getElementById("eAmount").value = "";
+      document.getElementById("eNote").value = "";
+    }
+
+    async function deleteExpense(id) {
+      if (!confirm("Padam rekod perbelanjaan ini?")) return;
+      await postAction({ action: "delete", target: "expense", id });
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderJournal() {
+      const container = document.getElementById("journalList");
+      if (!state.journal.length) {
+        container.innerHTML = '<div class="empty">Tiada rekod journal lagi.</div>';
+        return;
       }
 
-      function renderCalendar() {
-        elMonthLabel.textContent = `${MONTHS[state.viewMonth]} ${state.viewYear}`;
-        elCalDays.innerHTML = "";
+      container.innerHTML = state.journal.map(item => `
+        <div class="item">
+          <div>
+            <div class="item-title ${item.done ? "done" : ""}">${escapeHtml(item.title)}</div>
+            <div class="item-meta">${escapeHtml(item.date)} · ${escapeHtml(item.time)} · ${escapeHtml(item.type)} · ${escapeHtml(item.category)}</div>
+            ${item.content ? `<div class="item-content ${item.done ? "done" : ""}">${escapeHtml(item.content)}</div>` : ""}
+          </div>
+          <div class="row-right">
+            <input type="checkbox" ${item.done ? "checked" : ""} onchange="toggleJournalDone('${escapeHtml(item.id)}', ${Boolean(item.done)})" title="Mark done" />
+            <button class="danger" onclick="deleteJournal('${escapeHtml(item.id)}')">Delete</button>
+          </div>
+        </div>
+      `).join("");
+    }
 
-        const todayStr = getTodayDDMMYYYY();
-        const datesWithData = new Set();
-        state.journal.forEach(item => { if (item.date) datesWithData.add(item.date); });
-        state.expenses.forEach(item => { if (item.date) datesWithData.add(item.date); });
-
-        const firstDayOfMonth = new Date(state.viewYear, state.viewMonth, 1);
-        const startWeekday = firstDayOfMonth.getDay();
-        const daysInMonth = new Date(state.viewYear, state.viewMonth + 1, 0).getDate();
-        const prevMonthDays = new Date(state.viewYear, state.viewMonth, 0).getDate();
-
-        for (let i = startWeekday - 1; i >= 0; i--) {
-          const dayNum = prevMonthDays - i;
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "ns-day muted";
-          btn.textContent = dayNum;
-          elCalDays.appendChild(btn);
-        }
-
-        for (let d = 1; d <= daysInMonth; d++) {
-          const dateStr = `${pad2(d)}/${pad2(state.viewMonth + 1)}/${state.viewYear}`;
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "ns-day";
-          btn.textContent = d;
-
-          if (dateStr === todayStr) btn.classList.add("today-ring");
-          if (dateStr === state.selectedDate) btn.classList.add("selected");
-          if (datesWithData.has(dateStr)) btn.classList.add("has-dot");
-
-          btn.addEventListener("click", () => {
-            state.selectedDate = dateStr;
-            setStatus("Selected date: " + dateStr);
-            renderAll();
-          });
-
-          elCalDays.appendChild(btn);
-        }
+    function renderExpenses() {
+      const container = document.getElementById("expenseList");
+      if (!state.expenses.length) {
+        container.innerHTML = '<div class="empty">Tiada rekod perbelanjaan lagi.</div>';
+        return;
       }
 
-      function renderExpenses() {
-        elExpDate.textContent = state.selectedDate;
-        const dayExpenses = state.expenses.filter(e => e.date === state.selectedDate);
-        const total = dayExpenses.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+      container.innerHTML = state.expenses.map(item => `
+        <div class="item">
+          <div>
+            <div class="item-title">${escapeHtml(item.category)}${item.note ? " — " + escapeHtml(item.note) : ""}</div>
+            <div class="item-meta">${escapeHtml(item.date)}</div>
+          </div>
+          <div class="row-right">
+            <span class="amount">RM ${Number(item.amount || 0).toFixed(2)}</span>
+            <button class="danger" onclick="deleteExpense('${escapeHtml(item.id)}')">Delete</button>
+          </div>
+        </div>
+      `).join("");
+    }
 
-        elExpTotal.textContent = "RM " + total.toFixed(2);
-        elExpList.innerHTML = "";
-
-        if (!dayExpenses.length) {
-          elExpList.innerHTML = '<div class="ns-empty">No spending recorded on ' + state.selectedDate + '.</div>';
-          return;
-        }
-
-        dayExpenses.forEach(item => {
-          const row = document.createElement("div");
-          row.className = "ns-exp-item";
-          row.innerHTML = `
-            <div class="ns-exp-left">
-              <span class="ns-pill">${escapeHtml(item.category || "Other")}</span>
-              <span class="ns-exp-note">${escapeHtml(item.note || "")}</span>
-            </div>
-            <span class="ns-exp-amt">RM ${(parseFloat(item.amount) || 0).toFixed(2)}</span>
-          `;
-          elExpList.appendChild(row);
-        });
-      }
-
-      function renderJournal() {
-        elJrnDate.textContent = state.selectedDate;
-        const dayItems = state.journal.filter(j => j.date === state.selectedDate);
-        elJrnCount.textContent = `${dayItems.length} ${dayItems.length === 1 ? "item" : "items"}`;
-        elJrnList.innerHTML = "";
-
-        if (!dayItems.length) {
-          elJrnList.innerHTML = '<div class="ns-empty">No diary or to-do entries for ' + state.selectedDate + '.</div>';
-          return;
-        }
-
-        dayItems.forEach(item => {
-          const card = document.createElement("div");
-          card.className = "ns-jrn-card";
-
-          const isTodo = String(item.type).toLowerCase() === "todo";
-          const isDone = item.done === true || String(item.done).toUpperCase() === "TRUE";
-
-          const checkboxHtml = isTodo
-            ? `<input type="checkbox" class="ns-todo-cb" data-id="${escapeHtml(item.id)}" ${isDone ? "checked" : ""}>`
-            : "";
-
-          card.innerHTML = `
-            <div class="ns-jrn-top">
-              <span>${escapeHtml(item.time || "All Day")} &middot; ${escapeHtml(item.type || "Diary")}</span>
-              <span class="ns-pill">${escapeHtml(item.category || "Personal")}</span>
-            </div>
-            <div class="ns-jrn-title-row">
-              ${checkboxHtml}
-              <h3 class="ns-jrn-title ${isTodo && isDone ? "done" : ""}">${escapeHtml(item.title || "")}</h3>
-            </div>
-            ${item.content ? `<p class="ns-jrn-body">${escapeHtml(item.content)}</p>` : ""}
-          `;
-
-          const cb = card.querySelector(".ns-todo-cb");
-          if (cb) {
-            cb.addEventListener("change", async (e) => {
-              try {
-                await postPayload({
-                  action: "toggle_done",
-                  target: "journal",
-                  id: item.id,
-                  done: e.target.checked
-                });
-              } catch (err) {
-                setStatus(err.message, true);
-              }
-            });
-          }
-
-          elJrnList.appendChild(card);
-        });
-      }
-
-      function renderAll() {
-        renderCalendar();
-        renderExpenses();
-        renderJournal();
-      }
-
-      function escapeHtml(str) {
-        return String(str || "")
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;");
-      }
-
-      document.getElementById("ns-prev-month").addEventListener("click", () => {
-        state.viewMonth--;
-        if (state.viewMonth < 0) {
-          state.viewMonth = 11;
-          state.viewYear--;
-        }
-        renderCalendar();
-      });
-
-      document.getElementById("ns-next-month").addEventListener("click", () => {
-        state.viewMonth++;
-        if (state.viewMonth > 11) {
-          state.viewMonth = 0;
-          state.viewYear++;
-        }
-        renderCalendar();
-      });
-
-      document.getElementById("ns-today-btn").addEventListener("click", () => {
-        const now = new Date();
-        state.selectedDate = toDDMMYYYY(now);
-        state.viewYear = now.getFullYear();
-        state.viewMonth = now.getMonth();
-        renderAll();
-      });
-
-      document.getElementById("ns-exp-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const amount = document.getElementById("ns-exp-amount").value;
-        const category = document.getElementById("ns-exp-cat").value;
-        const note = document.getElementById("ns-exp-note").value;
-
-        try {
-          await postPayload({
-            action: "add",
-            target: "expense",
-            date: state.selectedDate,
-            amount: amount,
-            category: category,
-            note: note
-          });
-          e.target.reset();
-        } catch (err) {
-          setStatus(err.message, true);
-        }
-      });
-
-      document.getElementById("ns-quick-jrn-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const type = document.getElementById("ns-quick-type").value;
-        const title = document.getElementById("ns-quick-title").value;
-
-        try {
-          await postPayload({
-            action: "add",
-            target: "journal",
-            date: state.selectedDate,
-            time: "All Day",
-            type: type,
-            category: "Personal",
-            title: title,
-            content: "",
-            done: false
-          });
-          e.target.reset();
-        } catch (err) {
-          setStatus(err.message, true);
-        }
-      });
-
-      document.getElementById("ns-new-btn").addEventListener("click", () => {
-        document.getElementById("ns-m-date").value = state.selectedDate;
-        elModal.hidden = false;
-      });
-
-      document.getElementById("ns-close-modal").addEventListener("click", () => {
-        elModal.hidden = true;
-      });
-
-      document.getElementById("ns-cancel-modal").addEventListener("click", () => {
-        elModal.hidden = true;
-      });
-
-      document.getElementById("ns-modal-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        try {
-          await postPayload({
-            action: "add",
-            target: "journal",
-            date: document.getElementById("ns-m-date").value,
-            type: document.getElementById("ns-m-type").value,
-            time: document.getElementById("ns-m-time").value,
-            category: document.getElementById("ns-m-cat").value,
-            title: document.getElementById("ns-m-title").value,
-            content: document.getElementById("ns-m-content").value,
-            done: false
-          });
-          e.target.reset();
-          elModal.hidden = true;
-        } catch (err) {
-          setStatus(err.message, true);
-        }
-      });
-
-      loadData();
-    })();
+    document.getElementById("jDate").value = todayISO();
+    document.getElementById("eDate").value = todayISO();
+    refreshAll();
   </script>
 </body>
 </html>

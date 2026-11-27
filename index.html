@@ -2,64 +2,533 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>nspace.my</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#090b10" />
+  <title>nspace.my — V2</title>
+  <link rel="manifest" href="./manifest.json" />
   <link rel="stylesheet" href="./style.css" />
 </head>
-<body>
-  <div class="container">
-    <header>
-      <div class="brand">
-        <h1>nspace.my</h1>
-        <div id="status" class="status">Connecting...</div>
+<body data-device="desktop">
+  <div class="app-shell">
+    <!-- TOP HEADER -->
+    <header class="topbar">
+      <div class="brand-block">
+        <div class="brand-meta">
+          <span class="brand-mark">nspace.my</span>
+          <span id="status" class="status is-syncing" role="status" aria-live="polite" title="Syncing with Cloudflare D1">
+            <span class="cloud-indicator" aria-hidden="true">
+              <svg class="cloud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6.5 19h10.5a4.5 4.5 0 0 0 .8-8.92A6 6 0 0 0 6.1 8.8 3.8 3.8 0 0 0 6.5 19Z" />
+              </svg>
+              <span class="cloud-badge cloud-badge-ok">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2.5 6.2 5 8.7 9.5 3.5" />
+                </svg>
+              </span>
+              <span class="cloud-badge cloud-badge-err">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M3 3 9 9M9 3 3 9" />
+                </svg>
+              </span>
+            </span>
+            <span class="status-label">Syncing</span>
+          </span>
+        </div>
+        <h1 class="editorial-title">Make space for your day.</h1>
+        <p id="selectedDateSubtitle" class="editorial-sub">Friday, 27 Nov 2026</p>
       </div>
+
       <div class="top-actions">
-        <button id="refreshBtn" class="secondary" type="button">Refresh</button>
+        <button id="refreshBtn" class="btn secondary" type="button" title="Sync with D1">
+          Refresh
+        </button>
       </div>
     </header>
 
-    <div class="tabs">
-      <button id="tabJournal" class="tab-btn active" type="button" data-tab="journal">Journal</button>
-      <button id="tabExpenses" class="tab-btn secondary" type="button" data-tab="expenses">Expenses</button>
-    </div>
+    <!-- PRIMARY NAVIGATION (DESKTOP TOP / MOBILE BOTTOM VIA CSS) -->
+    <nav class="tabs" aria-label="nspace sections">
+      <button id="tabOverview" class="tab-btn active" type="button" data-tab="overview">
+        Overview
+      </button>
+      <button id="tabNotes" class="tab-btn" type="button" data-tab="notes">
+        Notes
+      </button>
+      <button id="tabTodo" class="tab-btn" type="button" data-tab="todo">
+        To-do
+      </button>
+      <button id="tabJournal" class="tab-btn" type="button" data-tab="journal">
+        Journal
+      </button>
+      <button id="tabExpenses" class="tab-btn" type="button" data-tab="expenses">
+        Expenses
+      </button>
+      <button id="tabCommitments" class="tab-btn" type="button" data-tab="commitments">
+        Commitments
+      </button>
+    </nav>
 
-    <!-- JOURNAL SECTION -->
-    <section id="sectionJournal">
-      <form id="journalForm" class="card">
-        <div class="grid-2">
-          <input id="jDate" type="date" required />
-          <input id="jTime" type="text" placeholder="Time (e.g. Morning / 21:30)" value="All Day" />
-          <select id="jType">
-            <option value="Diary">Diary</option>
-            <option value="Task">Task</option>
-            <option value="Note">Note</option>
-          </select>
-          <input id="jCategory" type="text" placeholder="Category" value="Personal" />
+    <main class="main-content">
+      <!-- 1. OVERVIEW TAB -->
+      <section id="sectionOverview" class="view-section" aria-label="Overview">
+        <div class="overview-grid">
+          <!-- LEFT COLUMN: CALENDAR + DAY AT A GLANCE -->
+          <div class="overview-col-left">
+            <div class="card calendar-card">
+              <div class="card-head">
+                <div>
+                  <h2 id="calMonthLabel">November 2026</h2>
+                  <span class="card-hint">Click any date to inspect</span>
+                </div>
+                <div class="cal-nav">
+                  <button id="calPrevBtn" class="btn secondary sm" type="button" aria-label="Previous month">
+                    Prev
+                  </button>
+                  <button id="calTodayBtn" class="btn secondary sm" type="button">
+                    Today
+                  </button>
+                  <button id="calNextBtn" class="btn secondary sm" type="button" aria-label="Next month">
+                    Next
+                  </button>
+                </div>
+              </div>
+
+              <div class="cal-weekdays" aria-hidden="true">
+                <span>Mon</span>
+                <span>Tue</span>
+                <span>Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+                <span>Sun</span>
+              </div>
+
+              <div id="calendarGrid" class="cal-grid" role="grid" aria-label="Calendar dates"></div>
+
+              <div class="cal-legend">
+                <span><i class="dot dot-journal"></i> Journal/Note</span>
+                <span><i class="dot dot-todo"></i> To-do</span>
+                <span><i class="dot dot-expense"></i> Expense</span>
+                <span><i class="dot dot-commitment"></i> Commitment due</span>
+              </div>
+            </div>
+
+            <div class="card glance-card">
+              <div class="card-head">
+                <h2>Day at a glance</h2>
+                <span id="glanceDateLabel" class="card-hint">27 Nov 2026</span>
+              </div>
+
+              <div class="glance-stats">
+                <div class="mini-stat">
+                  <span class="mini-label">Entries</span>
+                  <strong id="glanceEntryCount">0</strong>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-label">Tasks due</span>
+                  <strong id="glanceTaskCount">0</strong>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-label">Spent</span>
+                  <strong id="glanceSpentAmount">RM 0.00</strong>
+                </div>
+              </div>
+
+              <div class="quick-actions">
+                <button id="quickAddEntryBtn" class="btn primary" type="button">+ Add entry</button>
+                <button id="quickAddExpenseBtn" class="btn secondary" type="button">+ Add expense</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: DAILY VIEW + DAILY SPENDING + UPCOMING TASKS -->
+          <div class="overview-col-right">
+            <div class="card">
+              <div class="card-head">
+                <h2>Daily view</h2>
+                <span id="dailyViewDate" class="card-hint">27 Nov 2026</span>
+              </div>
+              <div id="overviewDailyEntries" class="list compact-list"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <h2>Daily spending</h2>
+                <strong id="overviewDailyTotal" class="amount-accent">RM 0.00</strong>
+              </div>
+              <div id="overviewDailyExpenses" class="list compact-list"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <h2>Upcoming tasks</h2>
+                <button id="viewAllTasksBtn" class="btn link-btn" type="button">View tasks</button>
+              </div>
+              <div id="overviewUpcomingTasks" class="list compact-list"></div>
+            </div>
+          </div>
         </div>
-        <div class="grid-2 grid-1">
-          <input id="jTitle" type="text" placeholder="Title" required />
+      </section>
+
+      <!-- 2. NOTES TAB -->
+      <section id="sectionNotes" class="view-section hidden" aria-label="Notes">
+        <div class="section-toolbar">
+          <div class="search-wrap">
+            <input id="noteSearch" type="search" placeholder="Search notes..." aria-label="Search notes" />
+          </div>
+          <button id="toggleNoteFormBtn" class="btn primary" type="button">+ New note</button>
         </div>
-        <textarea id="jContent" placeholder="Write details..."></textarea>
-        <button type="submit">Save Journal Entry</button>
-      </form>
 
-      <div id="journalList" class="list"></div>
-    </section>
+        <form id="noteForm" class="card form-card hidden">
+          <div class="card-head">
+            <h2>New Note</h2>
+            <button id="cancelNoteFormBtn" class="btn secondary sm" type="button">Cancel</button>
+          </div>
 
-    <!-- EXPENSES SECTION -->
-    <section id="sectionExpenses" class="hidden">
-      <form id="expenseForm" class="card">
-        <div class="grid-2">
-          <input id="eDate" type="date" required />
-          <input id="eAmount" type="number" step="0.01" min="0" placeholder="Amount (e.g. 15.50)" required />
-          <input id="eCategory" type="text" placeholder="Category (e.g. Food, Fuel)" value="Food" />
-          <input id="eNote" type="text" placeholder="Note" />
+          <div class="grid-2">
+            <div class="field">
+              <label for="nDate">Date</label>
+              <input id="nDate" type="date" required />
+            </div>
+            <div class="field">
+              <label for="nCategory">Category</label>
+              <input id="nCategory" type="text" placeholder="General, Ideas, Homelab" value="General" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="nTitle">Title</label>
+            <input id="nTitle" type="text" placeholder="Note title" required />
+          </div>
+
+          <div class="field">
+            <label for="nContent">Content</label>
+            <textarea id="nContent" placeholder="Write note details..."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Save Note</button>
+          </div>
+        </form>
+
+        <div id="notesList" class="list"></div>
+      </section>
+
+      <!-- 3. TO-DO TAB -->
+      <section id="sectionTodo" class="view-section hidden" aria-label="To-do">
+        <div class="section-toolbar">
+          <div class="filter-row">
+            <select id="todoStatusFilter" aria-label="Filter by status">
+              <option value="all">All tasks</option>
+              <option value="todo">To do</option>
+              <option value="in_progress">In progress</option>
+              <option value="completed">Completed</option>
+            </select>
+
+            <select id="todoCategoryFilter" aria-label="Filter by category">
+              <option value="all">All categories</option>
+            </select>
+          </div>
+          <button id="toggleTodoFormBtn" class="btn primary" type="button">+ New task</button>
         </div>
-        <button type="submit">Save Expense</button>
-      </form>
 
-      <div id="expenseList" class="list"></div>
-    </section>
+        <div class="kpi-grid-3">
+          <div class="card kpi-card">
+            <span class="kpi-label">Total tasks</span>
+            <strong id="kpiTotalTasks" class="kpi-value">0</strong>
+          </div>
+          <div class="card kpi-card">
+            <span class="kpi-label">In progress</span>
+            <strong id="kpiInProgressTasks" class="kpi-value">0</strong>
+          </div>
+          <div class="card kpi-card">
+            <span class="kpi-label">Completed</span>
+            <strong id="kpiCompletedTasks" class="kpi-value">0</strong>
+          </div>
+        </div>
+
+        <form id="todoForm" class="card form-card hidden">
+          <div class="card-head">
+            <h2>New Task</h2>
+            <button id="cancelTodoFormBtn" class="btn secondary sm" type="button">Cancel</button>
+          </div>
+
+          <div class="grid-4">
+            <div class="field">
+              <label for="tTitle">Task</label>
+              <input id="tTitle" type="text" placeholder="What needs to be done?" required />
+            </div>
+
+            <div class="field">
+              <label for="tStatus">Status</label>
+              <select id="tStatus">
+                <option value="todo">To do</option>
+                <option value="in_progress">In progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="tPriority">Priority</label>
+              <select id="tPriority">
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="tDueDate">Due date</label>
+              <input id="tDueDate" type="date" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="tCategory">Category</label>
+              <input id="tCategory" type="text" placeholder="Personal, Work, Homelab" value="Personal" />
+            </div>
+            <div class="field">
+              <label for="tNotes">Notes</label>
+              <input id="tNotes" type="text" placeholder="Optional context or checklist" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Save Task</button>
+          </div>
+        </form>
+
+        <div id="todoList" class="list"></div>
+      </section>
+
+      <!-- 4. JOURNAL TAB -->
+      <section id="sectionJournal" class="view-section hidden" aria-label="Journal">
+        <div class="section-toolbar">
+          <div class="search-wrap">
+            <input id="journalSearch" type="search" placeholder="Search reflections..." aria-label="Search reflections" />
+          </div>
+          <button id="toggleJournalFormBtn" class="btn primary" type="button">+ New reflection</button>
+        </div>
+
+        <form id="journalForm" class="card form-card hidden">
+          <div class="card-head">
+            <h2>New Reflection</h2>
+            <button id="cancelJournalFormBtn" class="btn secondary sm" type="button">Cancel</button>
+          </div>
+
+          <div class="grid-3">
+            <div class="field">
+              <label for="jDate">Date</label>
+              <input id="jDate" type="date" required />
+            </div>
+
+            <div class="field">
+              <label for="jMood">Mood</label>
+              <select id="jMood">
+                <option value="Calm">Calm</option>
+                <option value="Focused">Focused</option>
+                <option value="Grateful">Grateful</option>
+                <option value="Tired">Tired</option>
+                <option value="Reflective">Reflective</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="jCategory">Category</label>
+              <input id="jCategory" type="text" placeholder="Daily, Life, Growth" value="Daily" />
+            </div>
+          </div>
+
+          <!-- Hidden legacy compatibility fields so existing payloads remain intact -->
+          <input id="jTime" type="hidden" value="Evening" />
+          <input id="jType" type="hidden" value="Diary" />
+
+          <div class="field">
+            <label for="jTitle">Title</label>
+            <input id="jTitle" type="text" placeholder="Headline for today's reflection" required />
+          </div>
+
+          <div class="field">
+            <label for="jContent">Reflection</label>
+            <textarea id="jContent" placeholder="Write your reflection..."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Save Reflection</button>
+          </div>
+        </form>
+
+        <div id="journalList" class="list"></div>
+      </section>
+
+      <!-- 5. EXPENSES TAB -->
+      <section id="sectionExpenses" class="view-section hidden" aria-label="Expenses">
+        <div class="section-toolbar">
+          <div class="filter-row">
+            <select id="expenseCategoryFilter" aria-label="Filter by expense category">
+              <option value="all">All categories</option>
+            </select>
+
+            <input id="expenseFromDate" type="date" aria-label="From date" />
+            <input id="expenseToDate" type="date" aria-label="To date" />
+
+            <button id="clearExpenseFiltersBtn" class="btn secondary sm" type="button">Clear filters</button>
+          </div>
+          <button id="toggleExpenseFormBtn" class="btn primary" type="button">+ New expense</button>
+        </div>
+
+        <div class="kpi-grid-3">
+          <div class="card kpi-card">
+            <span class="kpi-label">All-time spending</span>
+            <strong id="kpiAllTimeSpend" class="kpi-value">RM 0.00</strong>
+          </div>
+          <div class="card kpi-card">
+            <span class="kpi-label">This month</span>
+            <strong id="kpiMonthSpend" class="kpi-value">RM 0.00</strong>
+          </div>
+          <div class="card kpi-card">
+            <span class="kpi-label">Filtered total</span>
+            <strong id="kpiFilteredSpend" class="kpi-value">RM 0.00</strong>
+          </div>
+        </div>
+
+        <form id="expenseForm" class="card form-card hidden">
+          <div class="card-head">
+            <h2>New Expense</h2>
+            <button id="cancelExpenseFormBtn" class="btn secondary sm" type="button">Cancel</button>
+          </div>
+
+          <div class="grid-4">
+            <div class="field">
+              <label for="eDate">Date</label>
+              <input id="eDate" type="date" required />
+            </div>
+
+            <div class="field">
+              <label for="eAmount">Amount (RM)</label>
+              <input id="eAmount" type="number" step="0.01" min="0" placeholder="0.00" required />
+            </div>
+
+            <div class="field">
+              <label for="eCategory">Category</label>
+              <input id="eCategory" type="text" placeholder="Food, Fuel, Groceries" value="Food" />
+            </div>
+
+            <div class="field">
+              <label for="ePaymentMethod">Payment method</label>
+              <select id="ePaymentMethod">
+                <option value="E-wallet">E-wallet</option>
+                <option value="Card">Card</option>
+                <option value="Cash">Cash</option>
+                <option value="Bank transfer">Bank transfer</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="eNote">Note</label>
+            <input id="eNote" type="text" placeholder="Optional note" />
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Save Expense</button>
+          </div>
+        </form>
+
+        <div id="expenseList" class="list"></div>
+      </section>
+
+      <!-- 6. COMMITMENTS TAB -->
+      <section id="sectionCommitments" class="view-section hidden" aria-label="Commitments">
+        <div class="section-toolbar">
+          <div class="toolbar-meta">
+            <span id="commitmentCycleLabel" class="card-hint">Monthly cycle</span>
+          </div>
+          <div class="toolbar-actions">
+            <button id="resetCommitmentsMonthBtn" class="btn secondary sm" type="button">
+              Reset month status
+            </button>
+            <button id="toggleCommitmentFormBtn" class="btn primary" type="button">+ Add commitment</button>
+          </div>
+        </div>
+
+        <div class="kpi-grid-4">
+          <div class="card kpi-card">
+            <span class="kpi-label">Total monthly commitments</span>
+            <strong id="kpiCommitTotal" class="kpi-value">RM 0.00</strong>
+          </div>
+          <div class="card kpi-card">
+            <span class="kpi-label">Paid this month</span>
+            <strong id="kpiCommitPaid" class="kpi-value">RM 0.00</strong>
+          </div>
+          <div class="card kpi-card">
+            <span class="kpi-label">Still to pay</span>
+            <strong id="kpiCommitRemaining" class="kpi-value">RM 0.00</strong>
+          </div>
+          <div class="card kpi-card">
+            <span class="kpi-label">Upcoming</span>
+            <strong id="kpiCommitUpcoming" class="kpi-value">0</strong>
+          </div>
+        </div>
+
+        <form id="commitmentForm" class="card form-card hidden">
+          <div class="card-head">
+            <h2>New Monthly Commitment</h2>
+            <button id="cancelCommitmentFormBtn" class="btn secondary sm" type="button">Cancel</button>
+          </div>
+
+          <div class="grid-4">
+            <div class="field">
+              <label for="cName">Name</label>
+              <input id="cName" type="text" placeholder="e.g. Car Loan / Internet" required />
+            </div>
+
+            <div class="field">
+              <label for="cAmount">Amount (RM)</label>
+              <input id="cAmount" type="number" step="0.01" min="0" placeholder="0.00" required />
+            </div>
+
+            <div class="field">
+              <label for="cCategory">Category</label>
+              <select id="cCategory">
+                <option value="Housing">Housing</option>
+                <option value="Transport">Transport</option>
+                <option value="Credit cards">Credit cards</option>
+                <option value="Personal loans">Personal loans</option>
+                <option value="BNPL">BNPL</option>
+                <option value="Utilities & Bills">Utilities & Bills</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="cDueDay">Due day (1–31)</label>
+              <input id="cDueDay" type="number" min="1" max="31" placeholder="15" required />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Save Commitment</button>
+          </div>
+        </form>
+
+        <div class="commitments-layout">
+          <div class="card">
+            <div class="card-head">
+              <h2>Monthly Commitments</h2>
+            </div>
+            <div id="commitmentList" class="list"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>At a glance</h2>
+              <span class="card-hint">By category (RM)</span>
+            </div>
+            <div id="commitmentCategorySummary" class="category-breakdown"></div>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script src="./app.js"></script>
